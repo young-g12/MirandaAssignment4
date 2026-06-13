@@ -58,6 +58,13 @@ int main()
         return -1;
     }
 
+    char mapFile[] = "Images/map1.fmp";
+
+    if (MapLoad(mapFile, 1))
+    {
+        return -1;
+    }
+
     // Load animation frames
     ALLEGRO_BITMAP* rabbitFrames[4];
 
@@ -69,11 +76,13 @@ int main()
     // Create hero
     Hero hero;
 
-    hero.x = 400;
-    hero.y = 300;
+    hero.x = 64;
+    hero.y = 64;
     hero.frame = 0;
 
     int animationCounter = 0;
+    int mapX = 0;
+    int mapY = 0;
 
     bool keys[4] =
     {
@@ -188,9 +197,16 @@ int main()
             }
         }
 
+        MapUpdateAnims();
+
         // Draw
-        al_clear_to_color(
-            al_map_rgb(0, 0, 0));
+        MapDrawBG(
+            mapX,
+            mapY,
+            0,
+            0,
+            799,
+            599);
 
         al_draw_bitmap(
             rabbitFrames[hero.frame],
