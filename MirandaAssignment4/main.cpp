@@ -85,6 +85,8 @@ int main()
     int mapX = 0;
     int mapY = 0;
 
+    int level = 1;
+
     const int RABBIT_W = 48;
     const int RABBIT_H = 32;
 
@@ -259,7 +261,39 @@ int main()
         {
             if (currentBlock->user1 == 2)
             {
-                std::cout << "LEVEL COMPLETE!" << std::endl;
+                level++;
+
+                MapFreeMem();
+
+                if (level == 2)
+                {
+                    char mapFile[] = "Images/map2.fmp";
+
+                    if (MapLoad(mapFile, 1))
+                    {
+                        return -1;
+                    }
+                }
+                else if (level == 3)
+                {
+                    char mapFile[] = "Images/map3.fmp";
+
+                    if (MapLoad(mapFile, 1))
+                    {
+                        return -1;
+                    }
+                }
+                else
+                {
+                    gameOver = true;
+                }
+
+                // reset rabbit position
+                hero.x = 64;
+                hero.y = 64;
+
+                mapX = 0;
+                mapY = 0;
             }
         }
 
