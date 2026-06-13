@@ -1,6 +1,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
+#include <iostream>
 
 #include "mappy_A5.h"
 #include "SpriteGrabber.h"
@@ -84,6 +85,9 @@ int main()
     int mapX = 0;
     int mapY = 0;
 
+    const int RABBIT_W = 48;
+    const int RABBIT_H = 32;
+
     bool keys[4] =
     {
         false, // up
@@ -155,29 +159,118 @@ int main()
 
         bool moving = false;
 
+        // UP
         if (keys[0])
         {
-            hero.y -= speed;
-            moving = true;
+            BLKSTR* topLeft =
+                MapGetBlockInPixels(
+                    (int)(hero.x + 2),
+                    (int)(hero.y - speed));
+
+            BLKSTR* topRight =
+                MapGetBlockInPixels(
+                    (int)(hero.x + RABBIT_W - 2),
+                    (int)(hero.y - speed));
+
+            if (topLeft != NULL &&
+                topRight != NULL &&
+                topLeft->user1 != 1 &&
+                topRight->user1 != 1)
+            {
+                hero.y -= speed;
+                moving = true;
+            }
         }
 
+        // DOWN
         if (keys[1])
         {
-            hero.y += speed;
-            moving = true;
+            BLKSTR* bottomLeft =
+                MapGetBlockInPixels(
+                    (int)(hero.x + 2),
+                    (int)(hero.y + RABBIT_H + speed));
+
+            BLKSTR* bottomRight =
+                MapGetBlockInPixels(
+                    (int)(hero.x + RABBIT_W - 2),
+                    (int)(hero.y + RABBIT_H + speed));
+
+            if (bottomLeft != NULL &&
+                bottomRight != NULL &&
+                bottomLeft->user1 != 1 &&
+                bottomRight->user1 != 1)
+            {
+                hero.y += speed;
+                moving = true;
+            }
         }
 
+        // LEFT
         if (keys[2])
         {
-            hero.x -= speed;
-            moving = true;
+            BLKSTR* topLeft =
+                MapGetBlockInPixels(
+                    (int)(hero.x - speed),
+                    (int)(hero.y + 2));
+
+            BLKSTR* bottomLeft =
+                MapGetBlockInPixels(
+                    (int)(hero.x - speed),
+                    (int)(hero.y + RABBIT_H - 2));
+
+            if (topLeft != NULL &&
+                bottomLeft != NULL &&
+                topLeft->user1 != 1 &&
+                bottomLeft->user1 != 1)
+            {
+                hero.x -= speed;
+                moving = true;
+            }
         }
 
+        // RIGHT
         if (keys[3])
         {
-            hero.x += speed;
-            moving = true;
+            BLKSTR* topRight =
+                MapGetBlockInPixels(
+                    (int)(hero.x + RABBIT_W + speed),
+                    (int)(hero.y + 2));
+
+            BLKSTR* bottomRight =
+                MapGetBlockInPixels(
+                    (int)(hero.x + RABBIT_W + speed),
+                    (int)(hero.y + RABBIT_H - 2));
+
+            if (topRight != NULL &&
+                bottomRight != NULL &&
+                topRight->user1 != 1 &&
+                bottomRight->user1 != 1)
+            {
+                hero.x += speed;
+                moving = true;
+            }
         }
+        BLKSTR* currentBlock =
+            MapGetBlockInPixels(
+                (int)hero.x,
+                (int)hero.y);
+
+        if (currentBlock != NULL)
+        {
+            if (currentBlock->user1 == 2)
+            {
+                std::cout << "LEVEL COMPLETE!" << std::endl;
+            }
+        }
+
+        mapX = (int)hero.x - 400;
+        mapY = (int)hero.y - 300;
+
+        if (mapX < 0)
+            mapX = 0;
+
+        if (mapY < 0)
+            mapY = 0;
 
         // Animate while moving
         if (moving)
@@ -197,6 +290,9 @@ int main()
             }
         }
 
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+
+
         MapUpdateAnims();
 
         // Draw
@@ -210,8 +306,8 @@ int main()
 
         al_draw_bitmap(
             rabbitFrames[hero.frame],
-            hero.x,
-            hero.y,
+            hero.x - mapX,
+            hero.y - mapY,
             0);
 
         al_flip_display();
