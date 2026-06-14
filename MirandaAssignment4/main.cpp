@@ -1,6 +1,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_font.h>
 #include <iostream>
 
 #include "mappy_A5.h"
@@ -19,11 +20,15 @@ int main()
     // Initialize Allegro
     al_init();
     al_init_image_addon();
+    al_init_font_addon();
     al_install_keyboard();
 
     // Create display
     ALLEGRO_DISPLAY* display =
         al_create_display(800, 600);
+
+    ALLEGRO_FONT* font =
+        al_create_builtin_font();
 
     if (!display)
         return -1;
@@ -86,6 +91,9 @@ int main()
     int mapY = 0;
 
     int level = 1;
+
+    int secondsRemaining = 60;
+    double lastSecond = al_get_time();
 
     const int RABBIT_W = 48;
     const int RABBIT_H = 32;
@@ -292,9 +300,18 @@ int main()
                 hero.x = 64;
                 hero.y = 64;
 
+                secondsRemaining = 60;
+                lastSecond = al_get_time();
+
                 mapX = 0;
                 mapY = 0;
             }
+        }
+
+        if (al_get_time() - lastSecond >= 1.0)
+        {
+            secondsRemaining--;
+            lastSecond = al_get_time();
         }
 
         mapX = (int)hero.x - 400;
@@ -324,6 +341,11 @@ int main()
             }
         }
 
+        if (secondsRemaining <= 0)
+        {
+            gameOver = true;
+        }
+
         al_clear_to_color(al_map_rgb(0, 0, 0));
 
 
@@ -337,6 +359,15 @@ int main()
             0,
             799,
             599);
+
+        al_draw_textf(
+            font,
+            al_map_rgb(255, 255, 255),
+            10,
+            10,
+            0,
+            "Time: %d",
+            secondsRemaining);
 
         al_draw_bitmap(
             rabbitFrames[hero.frame],
@@ -355,6 +386,7 @@ int main()
 
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
+    al_destroy_font(font);
     al_destroy_display(display);
 
     return 0;
